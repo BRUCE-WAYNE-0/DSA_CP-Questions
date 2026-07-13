@@ -1,35 +1,39 @@
 class Solution {
 public:
-    using pi = pair<int,int>;
     int networkDelayTime(vector<vector<int>>& times, int n, int k) {
-        vector<pair<int,int>> adj[n+1];
-        for(auto it : times){
-            adj[it[0]].push_back({it[1],it[2]});
+        vector<vector<pair<int,int>>> adj(n+1);
+        for(int i=0 ;i<times.size();i++){
+            int s = times[i][0];
+            int d = times[i][1];
+            int w = times[i][2];
+            adj[s].push_back({d,w});
         }
 
-        priority_queue<pi,vector<pi>,greater<pi>> q;
-        q.push({0,k});
-        vector<int> dist(n+1,1e9);
+        priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;
+        pq.push({0,k});
+        vector<int> dist(n+1,INT_MAX);
         dist[k] = 0;
-
-        while(!q.empty()){
-            auto p = q.top();
-            q.pop();
-            int cost = p.first;
+        while(!pq.empty()){
+            pair<int,int>p = pq.top();
+            pq.pop();
             int node = p.second;
-            if(cost > dist[node]) continue;
-
-            for(auto it : adj[node]){
-                if(cost + it.second < dist[it.first]){
-                    dist[it.first] = cost+it.second;
-                    q.push({cost+it.second,it.first});
+            int d = p.first;
+            if(d>dist[node]) continue;
+            for(int i=0 ;i<adj[node].size(); i++){
+                int neighbour = adj[node][i].first;
+                int wt = adj[node][i].second;
+                if(d+wt<dist[neighbour]){
+                    dist[neighbour] = d+wt;
+                    pq.push({d+wt,neighbour});
                 }
             }
         }
-        int maxi = 0;
-        for(int i=1;i<n+1;i++) maxi = max(maxi,dist[i]);
-
-        if(maxi == 1e9) return -1;
+        int maxi = INT_MIN;
+        for(int i=1 ;i<dist.size(); i++){
+            maxi = max(maxi,dist[i]);
+        }
+        if(maxi == INT_MAX) return -1;
         return maxi;
+
     }
 };
