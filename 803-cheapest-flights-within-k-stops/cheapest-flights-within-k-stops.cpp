@@ -21,8 +21,7 @@ public:
             int node = p.second.first;
             int cost = p.second.second;
 
-            
-            if(stops > k) continue;
+        
             for(auto ad : adj[node]){
                 int adjNode = ad.first;
                 int edW = ad.second;
