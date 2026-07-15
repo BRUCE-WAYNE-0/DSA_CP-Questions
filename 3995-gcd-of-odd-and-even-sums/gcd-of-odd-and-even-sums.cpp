@@ -3,7 +3,6 @@ public:
     int gcdOfOddEvenSums(int n) {
         int sumOdd = n*n;
         int sumEven = (n*n) + n;
-        int hcf  = __gcd(sumOdd,sumEven);
-        return hcf;
+        return __gcd(sumOdd,sumEven);
     }
 };
