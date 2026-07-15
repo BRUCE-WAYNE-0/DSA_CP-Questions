@@ -1,66 +1,45 @@
-class DSU{
-    vector<int> Upar;
-    vector<int> rank;
-    int disconn_comp;
-    int extra_cables;
-public:
-    DSU(int n){
-        disconn_comp = n;
-        extra_cables = 0;
-        Upar.resize(n);
-        rank.resize(n,0);
-
-        for(int i=0;i<n;i++) Upar[i] = i;
-    }
-
-    int FindUpar(int i){
-        if(Upar[i] == i) return i;
-        return Upar[i] = FindUpar(Upar[i]);
-    }
-
-    void Union_by_rank(int a,int b){
-        int PA = FindUpar(a);
-        int PB = FindUpar(b);
-
-        if(PA == PB){
-            extra_cables++;
-            return ;
-        }
-
-        disconn_comp--;
-
-        if(rank[PA] < rank[PB]){
-            Upar[PA] = PB;
-        }else if(rank[PB] < rank[PA]){
-            Upar[PB] = PA;
-        }else{
-            Upar[PB] = PA;
-            rank[PA]++;
-        }
-    }
-    int Not_Connected(){
-        return disconn_comp;
-    }
-
-    int Cables(){
-        return extra_cables;
-    }
-};
-
 class Solution {
 public:
-    int makeConnected(int n, vector<vector<int>>& connections) {
-        if(connections.size() < n-1) return -1;
-        DSU ds(n);
-        for(auto it : connections){
-            ds.Union_by_rank(it[0],it[1]);
+    vector<int> parent;
+    int find(int a)
+    {
+        if(parent[a] == a) return a;
+        return parent[a] = find(parent[a]);
+    }
+
+    void union_set(int a, int b)
+    {
+        int parent_A = find(a);
+        int parent_B = find(b);
+        if(parent_A != parent_B)
+        {
+            parent[parent_B] = parent_A;
         }
-        int extra_cables = ds.Cables();
-        int disconn_comp = ds.Not_Connected();
+    }
+    int makeConnected(int n, vector<vector<int>>& connections) 
+    {
+        int m = connections.size();
+        if(m < n -1)
+        {
+            return -1;
+        }
+        parent.resize(n);
+        for(int i = 0; i < n; i++)
+        {
+            parent[i] = i;
+        }
+        int components = n;
+        for(auto &edge : connections)
+        {
+            int u = edge[0];
+            int v = edge[1];
 
-        if(disconn_comp == 1) return 0;
-
-        if(extra_cables >= disconn_comp-1) return disconn_comp-1;
-        else return -1;
+            if(find(u) != find(v))
+            {
+                union_set(u,v);
+                components--;
+            }
+        }
+        return components-1;
     }
 };
