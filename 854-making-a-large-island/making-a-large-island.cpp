@@ -1,31 +1,86 @@
-
-class Solution {
-public:
-    int get(int i, int j, vector<vector<int>>& g) {
-    return (min(i, j) < 0 || i >= g.size() || j >= g[0].size()) ? 0 : g[i][j];
-    }
-    int paint(int i, int j, int clr, vector<vector<int>>& g) {
-    if (get(i, j, g) != 1)
-        return 0;
-    g[i][j] = clr;
-    return 1 + paint(i + 1, j, clr, g) + paint(i - 1, j, clr, g) +
-                paint(i, j + 1, clr, g) + paint(i, j - 1, clr, g);
-    }
-    int largestIsland(vector<vector<int>>& g, int res = 0) {
-    vector<int> sizes = {0, 0};  // sentinel values; colors start from 2.
-    for (auto i = 0; i < g.size(); ++i)
-        for (auto j = 0; j < g[i].size(); ++j)
-        if (g[i][j] == 1)
-            sizes.push_back(paint(i, j, sizes.size(), g));
-    for (auto i = 0; i < g.size(); ++i)
-        for (auto j = 0; j < g[i].size(); ++j)
-        if (g[i][j] == 0) {
-            unordered_set<int> s = { get(i + 1, j, g), get(i - 1, j, g),
-                                    get(i, j + 1, g), get(i, j - 1, g) };
-            res = max(res, accumulate(begin(s), end(s), 1, [&](int sum, int col) {
-            return sum + sizes[col];
-            }));
+class disjointset{
+    public:
+    vector<int>size,parent;
+    disjointset(int n){
+        size.resize(n+1,1);
+        parent.resize(n+1);
+        for(int i=0;i<=n;i++){
+            parent[i]=i;
         }
-    return res == 0 ? g.size() * g[0].size() : res;
     }
-};   
+    int findpar(int node){
+        if(parent[node]==node){
+            return node;
+
+        }
+        return parent[node]=findpar(parent[node]);
+    }
+    void unions(int u,int v){
+        int ul_u=findpar(u);
+        int ul_v=findpar(v);
+        if(ul_u==ul_v) return ;
+        if(size[ul_u]<size[ul_v]){
+            size[ul_v]+=size[ul_u];
+            parent[ul_u]=ul_v;
+        }
+        else{
+            parent[ul_v]=ul_u;
+             size[ul_u]+=size[ul_v];
+        }
+        return ;
+    }
+};
+class Solution {
+    private:
+    bool isvalid(int newr,int newc,int n){
+        return newr>=0&&newr<n&&newc>=0&&newc<n;
+    }
+public:
+
+    int largestIsland(vector<vector<int>>& grid) {
+        int n=grid.size();
+        int dr[]={-1,0,1,0};
+        int dc[]={0,-1,0,1};
+        disjointset d(n*n);
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                if(grid[i][j]==0) continue;
+                for(int idx=0;idx<4;idx++){
+                    int newr=i+dr[idx];
+                    int newc=j+dc[idx];
+                    if(isvalid(newr,newc,n)&&grid[newr][newc]){
+                        int nodeno=i*n+j;
+                        int adjno=newr*n+newc;
+                        d.unions(nodeno,adjno);
+                    }
+                }
+            }
+        }
+        int mx=0;
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                set<int>components;
+                if(grid[i][j]==1) continue;
+                for(int idx=0;idx<4;idx++){
+                    int newr=i+dr[idx];
+                    int newc=j+dc[idx];
+
+
+                    if(isvalid(newr,newc,n)&&grid[newr][newc]){
+                        components.insert(d.findpar(newr*n+newc));
+                    }
+                }
+                int sizes=0;
+                for(auto it:components){
+                    sizes+=d.size[it];
+                }
+                mx=max(mx,sizes+1);
+            }
+        }
+        for(int cellno=0;cellno<n*n;cellno++){
+            mx=max(mx,d.size[d.findpar(cellno)]);
+        }
+        return mx;
+        
+    }
+};
