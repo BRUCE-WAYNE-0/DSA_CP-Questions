@@ -1,25 +1,18 @@
 class Solution {
 public:
-    int rob1(vector<int>& nums) {
-        int prev = nums[0], prev2 = 0;
+    int solve(int start, int end, vector<int>& nums){
+        int prev = 0;
+        int mx = 0;
 
-        for(int i=1;i<nums.size();i++){
-            int take = nums[i] + prev2;
-            int not_take = prev;
-
-            prev2 = prev;
-            prev = max(take,not_take);
+        for(int i=start; i<=end; i++){
+            int temp = max(mx, prev + nums[i]);
+            prev = mx;
+            mx = temp;
         }
-
-        return prev;
+        return mx;
     }
-
     int rob(vector<int>& nums) {
         if(nums.size() == 1) return nums[0];
-        
-        vector<int> v1(nums.begin(),nums.end()-1);
-        vector<int> v2(nums.begin()+1,nums.end());
-
-        return max(rob1(v1),rob1(v2));
+        return max(solve(0, nums.size() - 2, nums), solve(1, nums.size() - 1, nums));     
     }
 };
