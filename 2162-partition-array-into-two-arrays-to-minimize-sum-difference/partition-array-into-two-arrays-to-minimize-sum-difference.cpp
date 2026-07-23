@@ -1,47 +1,67 @@
 class Solution {
 public:
+    void generate(vector<int>& nums, int idx, int end,
+                  int cnt, int sum,
+                  vector<vector<int>>& store) {
+
+        if (idx == end) {
+            store[cnt].push_back(sum);
+            return;
+        }
+
+        generate(nums, idx + 1, end, cnt, sum, store);
+
+        generate(nums, idx + 1, end,
+                 cnt + 1,
+                 sum + nums[idx],
+                 store);
+    }
+
     int minimumDifference(vector<int>& nums) {
-        int n = nums.size(), res = 0, sum = 0;
-        sum = accumulate(nums.begin(), nums.end(),0);
-        
-        int N = n/2;
-        vector<vector<int>> left(N+1), right(N+1);
-        
-		//storing all possible sum in left and right part
-        for(int mask = 0; mask<(1<<N); ++mask){
-            int sz = 0, l = 0, r = 0;
-            for(int i=0; i<N; ++i){
-                if(mask&(1<<i)){
-                    sz++;
-                    l += nums[i];
-                    r += nums[i+N];
+
+        int n = nums.size();
+        int m = n / 2;
+
+        int total = accumulate(nums.begin(), nums.end(), 0);
+
+        vector<vector<int>> left(m + 1), right(m + 1);
+
+        generate(nums, 0, m, 0, 0, left);
+
+        generate(nums, m, n, 0, 0, right);
+
+        for (int i = 0; i <= m; i++)
+            sort(right[i].begin(), right[i].end());
+
+        int ans = INT_MAX;
+
+        for (int leftCnt = 0; leftCnt <= m; leftCnt++) {
+
+            int rightCnt = m - leftCnt;
+
+            for (int leftSum : left[leftCnt]) {
+
+                int target = total / 2 - leftSum;
+
+                auto &v = right[rightCnt];
+
+                auto it = lower_bound(v.begin(), v.end(), target);
+
+                if (it != v.end()) {
+                    int chosen = leftSum + *it;
+                    ans = min(ans,
+                              abs(total - 2 * chosen));
+                }
+
+                if (it != v.begin()) {
+                    --it;
+                    int chosen = leftSum + *it;
+                    ans = min(ans,
+                              abs(total - 2 * chosen));
                 }
             }
-            left[sz].push_back(l);
-            right[sz].push_back(r);
         }
 
-        for(int sz=0; sz<=N; ++sz){
-            sort(right[sz].begin(), right[sz].end());
-        }
-
-        res = min(abs(sum-2*left[N][0]), abs(sum-2*right[N][0]));
-
-		//iterating over left part
-        for(int sz=1; sz<N; ++sz){
-            for(auto &a : left[sz]){
-                int b = (sum - 2*a)/2, rsz = N-sz;
-                auto &v = right[rsz];
-                auto itr = lower_bound(v.begin(), v.end(),b); //binary search over right part
-                
-                if(itr!=v.end()) res = min(res, abs(sum-2*(a+(*itr))));
-                if(itr!= v.begin()){
-                    auto it = itr; --it;
-                    res = min(res, abs(sum-2*(a+(*it))));
-                }                
-            }
-        }
-        return res;
-        
+        return ans;
     }
 };
