@@ -1,22 +1,30 @@
 class Solution {
 public:
-    int lcs(string s1,string s2){
-        int n = s1.size(), m = s2.size();
-        vector<int> prev(m+1,0);
-        for(int i=1;i<=n;i++){
-            vector<int> curr(m+1,0);
-            for(int j=1;j<=m;j++){
-                if(s1[i-1] == s2[j-1]) curr[j] = 1 + prev[j-1];
-                else curr[j] = max(curr[j-1],prev[j]);
+    int solveTab(string a, string b){
+
+        vector<int> curr(b.length()+1 ,0);
+        vector<int> next(b.length()+1 ,0);
+
+        for(int i = a.length()-1; i>=0; i--){
+            for(int j=b.length()-1; j>=0; j--){
+                
+
+                if(a[i] == b[j]){
+                    curr[j] = 1 + next[j+1];
+                }
+                else{
+                    curr[j] = max(next[j], curr[j+1]);
+                }
             }
-            prev = curr;
+            next = curr;
         }
-        return prev[m];
+        return next[0];
     }
 
-    int longestPalindromeSubseq(string s) {
-        string s2 = s;
-        reverse(s2.begin(),s2.end());
-        return lcs(s,s2);
-    }
+   int longestPalindromeSubseq(string s){
+    string revStr = s;
+    reverse(revStr.begin(), revStr.end());
+    int ans = solveTab(s, revStr);
+    return ans;
+   }
 };
