@@ -2,23 +2,18 @@ class Solution {
 public:
     int maxProfit(int k, vector<int>& p) {
         int n = p.size();
-        vector<vector<int>> prev(2,vector<int>(k+1,0));
-        vector<vector<int>> curr(2,vector<int>(k+1));
+        vector<vector<int>> dp(n+1,vector<int>(2*k+1,0));
 
         for(int i=n-1;i>=0;i--){
-            for(int j=0;j<2;j++){
-                curr[j][0] = 0;
-                for(int cap=1;cap<=k;cap++){
-                    if(j){
-                        curr[j][cap] = max(prev[1][cap],prev[0][cap]-p[i]);
-                    }else{
-                        curr[j][cap] = max(prev[0][cap],prev[1][cap-1]+p[i]);
-                    }
+            for(int j=2*k-1;j>=0;j--){
+                if(j%2==0){
+                    dp[i][j] = max(-p[i]+dp[i+1][j+1],dp[i+1][j]);
+                }else{
+                    dp[i][j] = max(p[i]+dp[i+1][j+1],dp[i+1][j]);
                 }
             }
-            prev = curr;
         }
 
-        return prev[1][k];
+        return dp[0][0];
     }
 };
