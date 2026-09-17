@@ -1,16 +1,28 @@
 class Solution {
 public:
-    int greedy(int goal,vector<int>& nums,int ans){
-        if(goal == 0) return 0;
-        for(int i=0;i<goal;i++){
-            if(i+nums[i]>=goal){
-                ans += greedy(i,nums,ans);
-                break;
+    int jump(vector<int>& nums) {
+        int n = nums.size();
+        if (n <= 1) return 0; // Already at the end
+
+        int jumps = 0;
+        int current_end = 0;
+        int farthest = 0;
+
+        for (int i = 0; i < n - 1; ++i) {
+            farthest = max(farthest, i + nums[i]);
+
+           
+            if (i == current_end) {
+                jumps++;
+                current_end = farthest;
+
+               
+                if (current_end >= n - 1) {
+                    break;
+                }
             }
         }
-        return 1+ans;
-    }
-    int jump(vector<int>& nums) {
-        return greedy(nums.size()-1,nums,0);
+
+        return jumps;
     }
 };
