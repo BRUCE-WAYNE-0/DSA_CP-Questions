@@ -1,22 +1,22 @@
-int freq[5], freq2[5];
 class Solution {
 public:
-    static vector<long long> resultArray(vector<int>& nums, int k) {
-        const int n=nums.size();
-        if (k==1) return {1LL*n*(n+1)/2};// special case
-        vector<long long> ans(k, 0);
-        memset(freq, 0, sizeof(int)*k);// freq[r]=how many times seen for x%k
-        for (int x: nums){
-            const int r=x%k;
-            memset(freq2, 0, sizeof(int)*k);
-            ans[r]++;
-            for (int j=0; j<k; j++){
-                const int prod=j*r%k;
-                freq2[prod]+=freq[j];
-                ans[prod]+=freq[j];
+    vector<long long> resultArray(vector<int>& nums, int k) {
+        vector<long long> ans(k, 0), dp(k, 0);
+
+        for (int num : nums) {
+            int x = num % k;
+            vector<long long> next(k, 0);
+            next[x]++;
+
+            for (int r = 0; r < k; r++) {
+                int newR = (r * x) % k;
+                next[newR] += dp[r];
             }
-            freq2[r]++;
-            memcpy(freq,freq2, sizeof(int)*k);
+
+            for (int r = 0; r < k; r++) {
+                ans[r] += next[r];
+            }
+            dp = next;
         }
         return ans;
     }
