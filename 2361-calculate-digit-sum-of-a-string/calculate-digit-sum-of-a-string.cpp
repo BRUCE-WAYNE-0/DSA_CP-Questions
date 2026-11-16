@@ -1,13 +1,18 @@
 class Solution {
 public:
     string digitSum(string s, int k) {
-        while (ssize(s) > k) {
+        while (static_cast<int>(s.size()) > k) {
             string next;
-            for (int i = 0; i < ssize(s); i += k) {
-                string_view group = string_view(s).substr(i, k);  // the last group may be shorter
-                next += to_string(accumulate(group.begin(), group.end(), 0, [](int sum, char d) { return sum + d - '0'; }));
+            next.reserve(s.size() / k + 1);
+            for (size_t start = 0; start < s.size(); start += k) {
+                size_t end = min(start + static_cast<size_t>(k), s.size());
+                int groupSum = 0;
+                for (size_t i = start; i < end; ++i) {
+                    groupSum += s[i] - '0';
+                }
+                next += to_string(groupSum);
             }
-            s = next;
+            s = move(next);
         }
         return s;
     }
